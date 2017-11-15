@@ -1,0 +1,6 @@
+.idea/*
+dnc_db/__pycache__/*
+phone/__pycache__/*
+phone/migrations/__pycache__/*
+.hg
+.hgignore
