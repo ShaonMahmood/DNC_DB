@@ -4,3 +4,4 @@ phone/__pycache__/*
 phone/migrations/__pycache__/*
 .hg
 .hgignore
+db.sqlite3

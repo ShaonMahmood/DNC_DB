@@ -18,6 +18,9 @@ class ResourceIdGenerator(models.Model):
         auto_now_add=True
     )
 
+    def __str__(self):
+        return self.name
+
 
 class PhoneData(models.Model):
 
@@ -26,11 +29,8 @@ class PhoneData(models.Model):
         null=True,blank=True
     )
 
-    resource_id_generator = models.ForeignKey(
-        ResourceIdGenerator,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True
+    key = models.CharField(
+       max_length=200
     )
 
     phone_number = models.CharField(

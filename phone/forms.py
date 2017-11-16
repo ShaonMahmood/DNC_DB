@@ -1,8 +1,11 @@
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
+
 from .models import PhoneData, ResourceIdGenerator
 
 
 class PhoneForm(forms.ModelForm):
+
     class Meta:
         model = PhoneData
         exclude = ['created']
@@ -20,6 +23,20 @@ class PhoneForm(forms.ModelForm):
             raise forms.ValidationError('Invalid phone number, must be 10 digit')
 
         return self.cleaned_data["phone_number"]
+
+    def clean_key(self):
+        accepted_key = self.cleaned_data["key"]
+        try:
+            re_obj = ResourceIdGenerator.objects.get(resource_id=accepted_key)
+        except ObjectDoesNotExist:
+            re_obj = None
+        if re_obj is None:
+            raise forms.ValidationError("Invalid key,ask the provider")
+        else:
+            return accepted_key
+
+
+
 
 
 class KeyGeneratorForm(forms.ModelForm):
