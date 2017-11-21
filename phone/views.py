@@ -1,8 +1,10 @@
+import requests
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 
 from phone.models import ResourceIdGenerator
 from .forms import PhoneForm,KeyGeneratorForm
@@ -10,7 +12,7 @@ from .forms import PhoneForm,KeyGeneratorForm
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.response import Response
 from phone.models import PhoneData
 from phone.serializers import PhoneSerializer
@@ -60,6 +62,19 @@ def validate_phone(request):
 
             # process the data in form.cleaned_data as required
             print(form.cleaned_data)
+            payload = {'source': 'test','phone_code':'1', 'list_id':'999', 'user': '6666', 'pass':'1234',
+                       'function':'add_lead', 'phone_number':form.cleaned_data['phone_number']}
+            url = "http://tcm.ytel.com/x5/api/non_agent.php"
+            #r1= requests.get(url,params=payload)
+
+            try:
+                r1 = requests.get(url, params=payload)
+                print("status code: ", r1.status_code)
+                print("content: ", r1.content)
+                print("text: ", r1.text)
+            except requests.exceptions.RequestException as e:  # This is the correct syntax
+                print(e)
+
             obj = form.save(commit=False)
             obj.save()
             return JsonResponse({"code": "phone number saved"}, status=200)
@@ -77,8 +92,8 @@ def test_form(request):
 
 
 # rest API
-
 @api_view(['GET', 'POST'])
+@authentication_classes((BasicAuthentication,TokenAuthentication))
 def number_list(request):
     """
     List all code snippets, or create a new snippet.
@@ -91,6 +106,19 @@ def number_list(request):
     elif request.method == 'POST':
         serializer = PhoneSerializer(data=request.data)
         if serializer.is_valid():
+            print("serialized data: ",serializer.validated_data)
+            #print("serialized data: ",serializer.data)
+            payload = {'source': 'test', 'phone_code': '1', 'list_id': '999', 'user': '6666', 'pass': '1234',
+                       'function': 'add_lead', 'phone_number': serializer.validated_data['phone_number']}
+            url = "http://tcm.ytel.com/x5/api/non_agent.php"
+            try:
+                r1 = requests.get(url, params=payload)
+                print("status code: ", r1.status_code)
+                print("content: ", r1.content)
+                print("text: ", r1.text)
+                print("url: ", r1.url)
+            except requests.exceptions.RequestException as e:  # This is the error catching syntax
+                print(e)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -114,6 +142,19 @@ def number_detail(request, pk):
     elif request.method == 'PUT':
         serializer = PhoneSerializer(phoneobject, data=request.data)
         if serializer.is_valid():
+            payload = {'source': 'test', 'phone_code': '1', 'list_id': '999', 'user': '6666', 'pass': '1234',
+                       'function': 'update_lead','search_location':'LIST','search_method':'PHONE_NUMBER',
+                       'phone_number': serializer.validated_data['phone_number']}
+            url = "http://tcm.ytel.com/x5/api/non_agent.php"
+            try:
+                r1 = requests.get(url, params=payload)
+                print("status code: ", r1.status_code)
+                print("content: ", r1.content)
+                print("text: ", r1.text)
+            except requests.exceptions.RequestException as e:  # This is the error catching syntax
+                print(e)
+                return Response({"code": "server don't responded properly"},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

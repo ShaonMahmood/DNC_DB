@@ -132,20 +132,30 @@ MEDIA_URL = '/media/'
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    #     'DEFAULT_PERMISSION_CLASSES': [
-    #         'rest_framework.permissions.IsAdminUser',
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #         'rest_framework.permissions.AllowAny',
     #          #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     #     ],
-    #     'DEFAULT_AUTHENTICATION_CLASSES': [
+    # #     'DEFAULT_AUTHENTICATION_CLASSES': [
+    # #     'rest_framework.authentication.TokenAuthentication',
+    # # ]
+    #
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #     'rest_framework.authentication.TokenAuthentication',
-    # ]
+    #     'rest_framework.authentication.SessionAuthentication',
+    # ),
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
 
 }
+
 
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
