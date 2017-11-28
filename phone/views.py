@@ -50,8 +50,23 @@ def key_generate(request):
     return render(request, 'generate_form.html', {'form': form})
 
 
+sending_api_info = {
+
+    "first": {
+        "sourceName": "first",
+    },
+
+    "second": {
+        "sourceName": "second",
+    },
+
+    "third": {
+        "sourceName": "test1",
+    },
+}
+
 @csrf_exempt
-def validate_phone(request):
+def validate_phone(request, sourceId):
     if request.method == 'POST':
 
         print(request.POST)
@@ -62,20 +77,11 @@ def validate_phone(request):
 
             # process the data in form.cleaned_data as required
             print(form.cleaned_data)
-            payload = {'source': 'test','phone_code':'1', 'list_id':'999', 'user': '6666', 'pass':'1234',
-                       'function':'add_lead', 'phone_number':form.cleaned_data['phone_number']}
-            url = "http://tcm.ytel.com/x5/api/non_agent.php"
-            #r1= requests.get(url,params=payload)
 
-            try:
-                r1 = requests.get(url, params=payload)
-                print("status code: ", r1.status_code)
-                print("content: ", r1.content)
-                print("text: ", r1.text)
-            except requests.exceptions.RequestException as e:  # This is the correct syntax
-                print(e)
-
+            # 'phone_number': form.cleaned_data['phone_number']
+            sourceName = sending_api_info[sourceId]["sourceName"]
             obj = form.save(commit=False)
+            obj.source = sourceName
             obj.save()
             return JsonResponse({"code": "phone number saved"}, status=200)
         else:

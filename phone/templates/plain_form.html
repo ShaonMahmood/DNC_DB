@@ -6,13 +6,17 @@
 </head>
 <body>
 
-<form action="http://127.0.0.1:8000/api/numberlist/" method="POST" id="form1">
+<form action="http://dnc-db.dev.concitus.com/phone-validation/first/" method="POST" id="form1">
+    <label for="key">Your Secret Key: </label>
+    <input id="key" type="text" name="key">
 
-   <input type="hidden" name="key" value="027c12b0-caba-11e7-95f9-5ce0c5150793">
-  <label for="phone">Your number: </label>
-  <input id="phone" type="text" name="phone_number" placeholder="XXXX-XXX-XXX">
-  <br>
-  <input type="submit" value="Submit">
+    <br>
+    <br>
+
+    <label for="phone">Your number: </label>
+    <input id="phone" type="text" name="phone_number" placeholder="XXXX-XXX-XXX">
+    <br>
+    <input type="submit" value="Submit">
 </form>
 
 </body>

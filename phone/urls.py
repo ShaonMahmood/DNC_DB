@@ -5,7 +5,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns1 = [
     url(r'^$',views.home, name='home'),
-    url(r'^phone-validation', views.validate_phone, name='phone-validator'),
+    url(r'^phone-validation/(?P<sourceId>[a-z0-9]+)/$', views.validate_phone, name='phone-validator'),
     url(r'^key-generate',views.key_generate,name='keygeneration'),
     url(r'^test-form',views.test_form,name='test'),
     ]

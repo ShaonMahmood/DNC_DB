@@ -36,8 +36,13 @@ class PhoneData(models.Model):
     phone_number = models.CharField(
         max_length=15
     )
+
     created = models.DateTimeField(
         auto_now_add=True
+    )
+
+    number_delivered = models.BooleanField(
+        default = False
     )
 
     class Meta:
