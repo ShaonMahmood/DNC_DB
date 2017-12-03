@@ -207,7 +207,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.SysLogHandler',
             'formatter': 'simple',
-            'address': ('localhost', 514),
+            'address': ('dev.concitus.com', 514),
             'facility': 'local5'
         }
     },
