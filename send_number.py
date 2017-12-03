@@ -6,6 +6,7 @@ import time
 import json
 
 import sys
+import logging
 
 import set_env
 
@@ -24,6 +25,9 @@ DEBUG = True
 
 def main():
 
+    logger = logging.getLogger('send_number')
+    # logger.info("hello shaon,how are u")
+
     for obj in PhoneData.objects.filter(number_delivered=False):
 
         # logger.info("lead_info: {0}".format(obj.subject))
@@ -35,8 +39,8 @@ def main():
 
         try:
             r1 = requests.get(url, params=payload)
-            print("status code: ", r1.status_code)
-            print("content: ", r1.content)
+
+            logger.info('{0}--{1}--{2}'.format(obj.phone_number,r1.status_code,r1.content))
             # print("text: ", r1.text)
             obj.number_delivered = True
             obj.save(update_fields=['number_delivered',])

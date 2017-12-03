@@ -157,5 +157,90 @@ REST_FRAMEWORK = {
 }
 
 
+LOGGING = {
+    'version': 1,
+
+    'disable_existing_loggers': False,
+
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+
+    'formatters': {
+
+        'simple': {
+            'format': ('%(asctime)s - %(name)s - '
+                       '%(levelname)s - %(message)s'),
+        },
+        'file': {
+            'format': '%(name)s::%(asctime)s - %(levelname)s: %(message)s',
+        },
+        'sysfmt': {
+            'format': '%(hostname)s %(name)s - %(levelname)s: %(message)s',
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'file': {
+            'level': ('DEBUG' if DEBUG else 'WARNING'),
+            'class': 'logging.FileHandler',
+            'filename': '/tmp/paper.log',
+            'formatter': 'file',
+        },
+        'syslog': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.SysLogHandler',
+            'formatter': 'simple',
+            'address': ('localhost', 514),
+            'facility': 'local5'
+        }
+    },
+
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+        },
+        'py.warnings': {
+            'handlers': ['console'],
+        },
+        'main': {
+            'handlers': ['file'],
+            'level': ('INFO' if DEBUG else 'WARNING'),
+            'propagate': True,
+        },
+        'send_number': {
+            'handlers': ['console', 'syslog'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+
+        'test':{
+            'handlers' : ['syslog','console'],
+            'level' : 'INFO',
+            'propagate': False,
+
+        }
+    }
+
+}
+
+
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
