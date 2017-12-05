@@ -36,8 +36,60 @@ class PhoneForm(forms.ModelForm):
             return accepted_key
 
 
+class XencallForm(forms.ModelForm):
+    class Meta:
+        model = PhoneData
+        exclude = ['created']
+
+    def clean_phone_number(self):
+
+        import re
+
+        raw_phone_number = self.cleaned_data["phone_number"].strip()
+
+        validated_phone_number = "".join(re.split("\D+",raw_phone_number))
+
+        if len(validated_phone_number) != 10:
+            print("invalid phone number")
+            raise forms.ValidationError('Invalid phone number, must be 10 digit')
+
+        return self.cleaned_data["phone_number"]
+
+    def clean_key(self):
+        accepted_key = self.cleaned_data["key"]
+        accepted_list = ["DNC","dnc","dncdb","DNCDB","Dnc"]
+        if accepted_key not in accepted_list:
+            raise forms.ValidationError("Invalid name ,ask the provider")
+        else:
+            return accepted_key
 
 
+class VicidialForm(forms.ModelForm):
+    class Meta:
+        model = PhoneData
+        exclude = ['created']
+
+    def clean_phone_number(self):
+
+        import re
+
+        raw_phone_number = self.cleaned_data["phone_number"].strip()
+
+        validated_phone_number = "".join(re.split("\D+",raw_phone_number))
+
+        if len(validated_phone_number) != 10:
+            print("invalid phone number")
+            raise forms.ValidationError('Invalid phone number, must be 10 digit')
+
+        return self.cleaned_data["phone_number"]
+
+    def clean_key(self):
+        accepted_key = self.cleaned_data["key"]
+        accepted_list = ["DNC","dnc","dncdb","DNCDB","Dnc"]
+        if accepted_key not in accepted_list:
+            raise forms.ValidationError("Invalid name ,ask the provider")
+        else:
+            return accepted_key
 
 class KeyGeneratorForm(forms.ModelForm):
 

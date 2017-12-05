@@ -7,6 +7,10 @@
 <body>
 
 <a href="{% url 'phone:keygeneration' %}">Generate a key</a>
+<br>
+<a href="{% url 'phone:testwebformxencall' %}">Test WEB FORM for XENCALL api</a>
+<br>
+<a href="{% url 'phone:testwebformvicidial' %}">Test WEB FORM for VICIDIAL api</a>
 
 
 {% for key in keylist %}

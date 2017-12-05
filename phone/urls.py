@@ -5,9 +5,13 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns1 = [
     url(r'^$',views.home, name='home'),
-    url(r'^phone-validation/(?P<sourceId>[a-z0-9]+)/$', views.validate_phone, name='phone-validator'),
+
+    url(r'^phone-validation/(?P<sourceName>[a-z0-9]+)/(?P<sourceId>[a-z0-9]+)/$', views.validate_phone, name='phone-validator'),
+
     url(r'^key-generate',views.key_generate,name='keygeneration'),
     url(r'^test-form',views.test_form,name='test'),
+    url(r'^test-web-form-xencall',views.test_web_form_xencall,name='testwebformxencall'),
+    url(r'^test-web-form-vicidial',views.test_web_form_vicidial,name='testwebformvicidial'),
     ]
 
 urlpatterns2 = [
