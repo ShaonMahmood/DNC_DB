@@ -238,7 +238,7 @@ def test_web_form_xencall(request):
                'zip': '44102',
                'address': 'wall street'
                }
-    url = "http://dnc-db.dev.concitus.com/phone-validation/xencall/1/"
+    url = "http://dnc-db.dev.concitus.com/api/xencall/1/"
 
     try:
         r1 = requests.get(url, params=payload)
@@ -260,7 +260,7 @@ def test_web_form_vicidial(request):
                'dispo': 'Dnc',
                'talk_time': '5456'
                }
-    url = "http://dnc-db.dev.concitus.com/phone-validation/vicidial/1/"
+    url = "http://dnc-db.dev.concitus.com/api/vicidial/1/"
 
     try:
         r1 = requests.get(url, params=payload)
