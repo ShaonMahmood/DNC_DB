@@ -12,7 +12,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 
 from phone.models import ResourceIdGenerator
-from .forms import PhoneForm, KeyGeneratorForm, XencallForm
+from .forms import PhoneForm, KeyGeneratorForm, XencallForm, VicidialForm
 
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -55,21 +55,6 @@ def key_generate(request):
     return render(request, 'generate_form.html', {'form': form})
 
 
-sending_api_info = {
-
-    "first": {
-        "sourceName": "first",
-    },
-
-    "second": {
-        "sourceName": "second",
-    },
-
-    "third": {
-        "sourceName": "test1",
-    },
-}
-
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def validate_phone(request,sourceName, sourceId):
@@ -83,79 +68,57 @@ def validate_phone(request,sourceName, sourceId):
             vals = request.POST
 
         eventtime = time.time()
-        errors = {}
 
-        phone = ''
-        try:
-            phone = vals['phone1'].strip()
-        except KeyError:
-            errors['phone1'] = "phone number missing"
-        campaign = vals.get('campaign', '').strip()
+        accepted_list = ["DNC", "dnc", "Dnc", "Do Not Call",]
+        result = vals.get('result', '').strip()
 
-        # Fetch and decode call result object
-        result_name =''
-        result_abbrev = ''
-        try:
-            callresult = json.loads(vals['callResult'])
-            if not isinstance(callresult, dict):
-                errors['callResult'] = '"callResult" parameter is not a JSON object.'
-
-            result_name = callresult.get('Name', '')
-            result_abbrev = callresult.get('Abbrev', '')
-        except KeyError:
-            errors['callResult'] = 'Missing callResult parameter.'
-        except json.decoder.JSONDecodeError:
-            errors['callResult'] = 'callResult parameter is not JSON encoded.'
-
-        # Fetch and decode call info object.
-        info_tpname = ''
-        info_tpnumber = ''
-        try:
-            callinfo = json.loads(vals['callInfo'])
-            if not isinstance(callinfo, dict):
-                errors['callInfo'] = '"callInfo" parameter is not a JSON object.'
-            info_tpname = callinfo.get('X_TPName', '')
-            info_tpnumber = callinfo.get('X_TPNumber', '')
-        except KeyError:
-            errors['callInfo'] = 'Missing callInfo parameter.'
-        except json.decoder.JSONDecodeError:
-            errors['callInfo'] = 'callInfo parameter is not JSON encoded.'
-
-        # Collect additional info.
-        state = vals.get('state', '').strip()
-        city = vals.get('city', '').strip()
-        zip_ = vals.get('zip', '').strip()
-        address = vals.get('address', '').strip()
-
-        if errors:
-            return JsonResponse(errors, status=400)
-
-        data = {
-            'phone': phone,
-            'campaign': campaign,
-            'result_name': result_name,
-            'result_abbrev': result_abbrev,
-            'info_tpname': info_tpname,
-            'info_tpnumber': info_tpnumber,
-            'eventtime': eventtime,
-            'state': state,
-            'city': city,
-            'zip': zip_,
-            'address': address,
-        }
-
-        print("data incomming: ",data)
-
-        form = XencallForm({'phone_number':phone, 'key':result_name})
-        if form.is_valid():
-            print(form.cleaned_data)
-            obj = form.save(commit=False)
-            obj.source = sourceName + ":" + sourceId
-            obj.save()
-            return JsonResponse({"code": "phone number saved"}, status=200)
+        if result not in accepted_list:
+            return JsonResponse({"code": "Thank u for your submission"}, status=200)
 
         else:
-            return JsonResponse(form.errors, status=400)
+            errors = {}
+
+            phone = ''
+            try:
+                phone = vals['phone1'].strip()
+            except KeyError:
+                errors['phone1'] = "phone number missing"
+
+            backupphone = vals.get('phone2', '').strip()
+
+            source = vals.get('source', '').strip()
+
+            lead_id = ''
+            try:
+                lead_id = vals['leadid'].strip()
+            except KeyError:
+                errors['leadid'] = "leadid missing"
+
+
+            if errors:
+                return JsonResponse(errors, status=400)
+
+            data = {
+                'source':source,
+                'phone': phone,
+                'alternate_phone': backupphone,
+                'result': result,
+                'eventtime': eventtime,
+                'lead_id': lead_id,
+            }
+
+            print("data incomming: ",data)
+
+            form = XencallForm({'phone_number':phone, 'key':result, 'backup_phone':backupphone})
+            if form.is_valid():
+                print(form.cleaned_data)
+                obj = form.save(commit=False)
+                obj.source = sourceName + "-" + sourceId + "-" + source
+                obj.save()
+                return JsonResponse({"code": "phone number sucessfully saved"}, status=200)
+
+            else:
+                return JsonResponse(form.errors, status=400)
 
     elif sourceName == 'vicidial':
 
@@ -166,53 +129,60 @@ def validate_phone(request,sourceName, sourceId):
             vals = request.POST
 
         eventtime = time.time()
-        errors = {}
-
-        phone = ''
-        try:
-            phone = vals['phone_number'].strip()
-        except KeyError:
-            errors['phone_number'] = "phone number missing"
-
-        phonecode = ''
-        try:
-            phonecode = vals['phone_code'].strip()
-        except KeyError:
-            errors['phone_code'] = "phone code missing"
-
-        lead_id = vals.get('leadID', '').strip()
-        list_id = vals.get('listID', '').strip()
+        accepted_list = ["DNC", "dnc", "Dnc", "Do Not Call",]
         dispo = vals.get('dispo', '').strip()
-        if not dispo:
-            errors['dispo'] = 'dispo not provided'
 
-        talk_time = vals.get('talk_time', '').strip()
-
-        if errors:
-            return JsonResponse(errors, status=400)
-
-        data = {
-            'phone': phone,
-            'phoneCode': phonecode,
-            'eventtime': eventtime,
-            'leadid': lead_id,
-            'listid': list_id,
-            'dispo': dispo,
-            'talkTime': talk_time,
-        }
-
-        print("data incomming: ", data)
-
-        form = XencallForm({'phone_number': phone, 'key': dispo})
-        if form.is_valid():
-            print(form.cleaned_data)
-            obj = form.save(commit=False)
-            obj.source = sourceName + ":" + sourceId
-            obj.save()
-            return JsonResponse({"code": "phone number saved"}, status=200)
+        if dispo not in accepted_list:
+            return JsonResponse({"code":"Thank u for your submission"},status=200)
 
         else:
-            return JsonResponse(form.errors, status=400)
+            errors = {}
+
+            phone = ''
+            try:
+                phone = vals['phone_number'].strip()
+            except KeyError:
+                errors['phone_number'] = "phone number missing"
+
+            phonecode = ''
+            try:
+                phonecode = vals['phone_code'].strip()
+            except KeyError:
+                errors['phone_code'] = "phone code missing"
+
+            leadid = vals.get('leadID', '').strip()
+            listid = vals.get('listID', '').strip()
+
+            source = vals.get('source', '').strip()
+
+            talk_time = vals.get('talk_time', '').strip()
+
+            if errors:
+                return JsonResponse(errors, status=400)
+
+            data = {
+                'phone': phone,
+                'source': source,
+                'phoneCode': phonecode,
+                'eventtime': eventtime,
+                'leadid': leadid,
+                'listid': listid,
+                'dispo': dispo,
+                'talkTime': talk_time,
+            }
+
+            print("data incomming: ", data)
+
+            form = VicidialForm({'phone_number': phone, 'key': dispo})
+            if form.is_valid():
+                print(form.cleaned_data)
+                obj = form.save(commit=False)
+                obj.source = sourceName + "-" + sourceId + "-" + source
+                obj.save()
+                return JsonResponse({"code": "phone number successfully saved"}, status=200)
+
+            else:
+                return JsonResponse(form.errors, status=400)
 
     else:
         return JsonResponse({'error':"unknown provider"},status=400)
@@ -229,16 +199,15 @@ def test_form(request):
     return render(request,"plain_form.html")
 
 def test_web_form_xencall(request):
-    payload = {'phone1': '4876857757',
-               'campaign': '74647',
-               'callResult': json.dumps({'Name':'Dnc','Abbrev':'dncdb'}),
-               'callInfo': json.dumps({'X_TPName':'fdf','X_TPNumber':'98375985'}),
-               'state': 'toronto',
-               'city': 'ohio',
-               'zip': '44102',
-               'address': 'wall street'
-               }
-    url = "http://dnc-db.dev.concitus.com/api/xencall/1/"
+    payload = { 'source': 'xxc',
+                'result': 'Do Not Call',
+                'leadid': '33',
+                'phone1': '5456547546',
+                'phone2': '5456654567',
+
+    }
+
+    url = "http://dnc-db.deb.concitus.com/api/xencall/1/"
 
     try:
         r1 = requests.get(url, params=payload)
@@ -346,3 +315,4 @@ def number_detail(request, pk):
     elif request.method == 'DELETE':
         phoneobject.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+

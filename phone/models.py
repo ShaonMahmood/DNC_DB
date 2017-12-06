@@ -45,6 +45,12 @@ class PhoneData(models.Model):
         default = False
     )
 
+    backup_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
     class Meta:
         ordering = ('created',)
 
