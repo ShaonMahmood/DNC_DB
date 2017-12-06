@@ -199,7 +199,7 @@ def test_form(request):
     return render(request,"plain_form.html")
 
 def test_web_form_xencall(request):
-    payload = { 'source': 'xxc',
+    payload = { 'source': 'xxcrr',
                 'result': 'Do Not Call',
                 'leadid': '33',
                 'phone1': '5456547546',
@@ -207,7 +207,7 @@ def test_web_form_xencall(request):
 
     }
 
-    url = "http://dnc-db.deb.concitus.com/api/xencall/1/"
+    url = "http://dnc-db.dev.concitus.com/api/xencall/1/"
 
     try:
         r1 = requests.get(url, params=payload)
@@ -222,7 +222,7 @@ def test_web_form_xencall(request):
 
 
 def test_web_form_vicidial(request):
-    payload = {'phone_number': '4876857757',
+    payload = {'phone_number': '4876859999',
                'phone_code': '1',
                'listID': '354',
                'leadID': '33',
