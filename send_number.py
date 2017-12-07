@@ -33,7 +33,11 @@ def main():
         # logger.info("lead_info: {0}".format(obj.subject))
         # 'phone_code': '1', 'list_id': '999',
 
-        vicidial_payload = {'source': obj.source, 'user': '101', 'pass': '451USXB32N4mD',
+        vicidial_tcm_payload = {'source': obj.source, 'user': '101', 'pass': '451USXB32N4mD',
+                   'function': 'update_lead', 'phone_number': obj.phone_number, 'status': 'DNC','addDncOption':'BOTH',
+                   "alt_phone":obj.backup_phone}
+
+        vicidial_eagent_payload = {'source': obj.source, 'user': '101', 'pass': '046USXB32N4xyDK',
                    'function': 'update_lead', 'phone_number': obj.phone_number, 'status': 'DNC','addDncOption':'BOTH',
                    "alt_phone":obj.backup_phone}
 
@@ -50,8 +54,8 @@ def main():
         url3 = "https://nha-api.xencall.com/DNC"
 
         try:
-            r1 = requests.get(url1, params=vicidial_payload)
-            r2 = requests.get(url2, params=vicidial_payload)
+            r1 = requests.get(url1, params=vicidial_tcm_payload)
+            r2 = requests.get(url2, params=vicidial_eagent_payload)
             r3 = requests.post(url3, data=xencall_payload)
 
             logger.info('{0}--{1}--{2}'.format(obj.phone_number,r1.status_code,r1.content))
