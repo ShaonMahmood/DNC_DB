@@ -3,6 +3,13 @@ dnc_db/__pycache__/*
 phone/__pycache__/*
 phone/migrations/__pycache__/*
 __pycache__/*
+dnc_db/settings.py.orig
+phone/migrations/0001_initial.py.orig
+phone/models.py.orig
+phone/urls.py.orig
+phone/views.py.orig
+phone/templates/home.html.orig
+mock_send_number.py
 .hg
 .hgignore
 db.sqlite3

@@ -4,6 +4,7 @@ import json
 import time
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -11,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 
+from dnc_db import settings
 from phone.models import ResourceIdGenerator
 from .forms import PhoneForm, KeyGeneratorForm, XencallForm, VicidialForm
 
@@ -19,7 +21,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.response import Response
-from phone.models import PhoneData
+from phone.models import PhoneData,ApiSending
 from phone.serializers import PhoneSerializer
 # Create your views here.
 
@@ -111,10 +113,18 @@ def validate_phone(request,sourceName, sourceId):
 
             form = XencallForm({'phone_number':phone, 'key':result, 'backup_phone':backupphone})
             if form.is_valid():
+                apiLength = len(settings.API_SENDING_LIST)
+                apiList = settings.API_SENDING_LIST
                 print(form.cleaned_data)
                 obj = form.save(commit=False)
                 obj.source = sourceName + "-" + sourceId + "-" + source
-                obj.save()
+
+
+                with transaction.atomic():
+                    obj.save()
+                    for i in range(0,apiLength):
+                        ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
+
                 return JsonResponse({"code": "phone number sucessfully saved"}, status=200)
 
             else:
@@ -175,10 +185,18 @@ def validate_phone(request,sourceName, sourceId):
 
             form = VicidialForm({'phone_number': phone, 'key': dispo})
             if form.is_valid():
+                apiLength = len(settings.API_SENDING_LIST)
+                apiList = settings.API_SENDING_LIST
                 print(form.cleaned_data)
                 obj = form.save(commit=False)
                 obj.source = sourceName + "-" + sourceId + "-" + source
                 obj.save()
+
+                with transaction.atomic():
+                    obj.save()
+                    for i in range(0,apiLength):
+                        ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
+
                 return JsonResponse({"code": "phone number successfully saved"}, status=200)
 
             else:

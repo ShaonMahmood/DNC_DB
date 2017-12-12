@@ -241,6 +241,9 @@ LOGGING = {
 
 }
 
+TIME_SPAN_FOR_DATA_SENDING = 30
+
+API_SENDING_LIST = ["xencall", "vicidial 1", "vicidial 2"]
 
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
