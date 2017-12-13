@@ -21,6 +21,9 @@ class ResourceIdGenerator(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "resource"
+
 
 class PhoneData(models.Model):
 
@@ -83,6 +86,7 @@ class PhoneData(models.Model):
 
     class Meta:
         ordering = ('created',)
+        verbose_name = "phone_data"
 
 
 class ApiSending(models.Model):
@@ -124,6 +128,7 @@ class ApiSending(models.Model):
 
     class Meta:
         ordering = ('created',)
+        verbose_name = "api_sending"
 
 
 

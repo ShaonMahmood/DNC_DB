@@ -243,6 +243,8 @@ LOGGING = {
 
 TIME_SPAN_FOR_DATA_SENDING = 30
 
+MAX_TRY_COUNT = 3
+
 API_SENDING_LIST = ["xencall", "vicidial 1", "vicidial 2"]
 
 db_from_env = dj_database_url.config(conn_max_age=500)

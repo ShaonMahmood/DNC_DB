@@ -21,7 +21,7 @@ def main():
 
     logger = logging.getLogger('send_number')
 
-    for obj in ApiSending.objects.filter(Q(delivered=False),
+    for obj in ApiSending.objects.filter(Q(delivered=False),Q(attempt_count__lte=trycount),
                                          Q(attempt_time__isnull=True) |
                                                  Q(attempt_time__lte=timezone.now()-datetime.timedelta(minutes=timespan)))[:50]:
         try:
@@ -73,13 +73,20 @@ def main():
                     obj.attempt_count += 1
 
             elif obj.destination == "xencall":
+                if obj.phoneobject.backup_phone:
+                    xencall_payload = {
+                        "API_user":"evan",
+                        "API_pass":"boat1234",
+                        "entry[0][phone]":obj.phoneobject.phone_number,
+                        "entry[1][phone]":obj.phoneobject.backup_phone,
+                    }
 
-                xencall_payload = {
-                    "API_user":"evan",
-                    "API_pass":"boat1234",
-                    "entry[0][phone]":obj.phoneobject.phone_number,
-                    "entry[1][phone]":obj.phoneobject.backup_phone,
-                }
+                else:
+                    xencall_payload = {
+                        "API_user": "evan",
+                        "API_pass": "boat1234",
+                        "entry[0][phone]": obj.phoneobject.phone_number,
+                    }
 
                 url3 = "https://nha-beta.xencall.com/TPI/DNC?" + urllib.parse.urlencode(xencall_payload)
 
@@ -113,7 +120,7 @@ if __name__ == '__main__':
     from django.db.models import Q
     import datetime
     from django.utils import timezone
-    from dnc_db.settings import TIME_SPAN_FOR_DATA_SENDING as timespan
+    from dnc_db.settings import TIME_SPAN_FOR_DATA_SENDING as timespan, MAX_TRY_COUNT as trycount
     while True:
         main()
         time.sleep(3)
