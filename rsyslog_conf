@@ -1,0 +1,9 @@
+$ModLoad imudp
+$UDPServerRun 514
+
+local5.*         /var/log/dnc_db/send_number.log
+local6.*         /var/log/dnc_db/receive_number.log
+#if $programname startswith 'gunicorn.lctoauthority' then /var/log/lctoauthority/gunicorn.log
+#&~
+
+#if $programname startswith 'send_number' then /var/log/send_number/send_number.log
