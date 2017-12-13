@@ -10,7 +10,7 @@ class PhoneDataAdmin(admin.ModelAdmin):
 
 
 class ApiSendingAdmin(admin.ModelAdmin):
-    list_display = ["destination","phoneobject","delivered","attempt_time","attempt_count"]
+    list_display = ["destination","phoneobject","delivered","attempt_time","attempt_count","created"]
 
 
 model_admin_dict = {
