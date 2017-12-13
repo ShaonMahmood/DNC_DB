@@ -1,3 +1,5 @@
+import logging
+
 import requests
 import json
 
@@ -60,6 +62,8 @@ def key_generate(request):
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def validate_phone(request,sourceName, sourceId):
+
+    logger = logging.getLogger('receive_number')
 
     if sourceName == 'xencall':
 
@@ -124,6 +128,8 @@ def validate_phone(request,sourceName, sourceId):
                     obj.save()
                     for i in range(0,apiLength):
                         ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
+
+                logger.info('the number {0} with source name {1} is saved'.format(obj.phone_number, obj.source))
 
                 return JsonResponse({"code": "phone number sucessfully saved"}, status=200)
 
@@ -196,6 +202,8 @@ def validate_phone(request,sourceName, sourceId):
                     obj.save()
                     for i in range(0,apiLength):
                         ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
+
+                logger.info('the number {0} with source name {1} is saved'.format(obj.phone_number, obj.source))
 
                 return JsonResponse({"code": "phone number successfully saved"}, status=200)
 

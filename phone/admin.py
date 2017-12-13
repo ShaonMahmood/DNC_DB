@@ -10,19 +10,20 @@ class PhoneDataAdmin(admin.ModelAdmin):
 
 
 class ApiSendingAdmin(admin.ModelAdmin):
-    list_display = ["destination","phoneobject","delivered","attempt_time"]
+    list_display = ["destination","phoneobject","delivered","attempt_time","attempt_count"]
 
+
+model_admin_dict = {
+    "phone_data":PhoneDataAdmin,
+    "api_sending":ApiSendingAdmin
+}
 
 app_models = apps.get_app_config('phone').get_models()
 for model in app_models:
     try:
-        if model._meta.verbose_name == "phone_data":
-            admin.site.register(model,PhoneDataAdmin)
-
-        elif model._meta.verbose_name == "api_sending":
-            admin.site.register(model,ApiSendingAdmin)
-
-        else:
+        try:
+            admin.site.register(model, model_admin_dict[model._meta.verbose_name])
+        except KeyError:
             admin.site.register(model)
     except AlreadyRegistered:
         pass

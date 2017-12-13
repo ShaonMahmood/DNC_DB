@@ -129,11 +129,3 @@ class ApiSending(models.Model):
     class Meta:
         ordering = ('created',)
         verbose_name = "api_sending"
-
-
-
-
-
-
-
-
