@@ -67,9 +67,13 @@ def main():
     for obj in ApiSending.objects.filter(Q(delivered=False),Q(attempt_count__lte=trycount),
                                          Q(attempt_time__isnull=True) |
                                          Q(attempt_time__lte=timezone.now()-datetime.timedelta(minutes=timespan)))[:50]:
+        logger.info("Sending number {0} to {1} comming from {2}..".format(obj.phoneobject.phone_number,obj.destination,
+                                                                          obj.phoneobject.source))
+        obj.attempt_time = timezone.now()
+        obj.attempt_count += 1
+        update_fields = ["attempt_time","attempt_count"]
         try:
             lis = api_sending_generator(obj)
-            obj.attempt_time = timezone.now()
             if len(lis) == 1:
                 r1 = requests.post(lis[0])
             else:
@@ -78,18 +82,26 @@ def main():
             if str(r1.status_code) == '200':
 
                 obj.delivered = True
-                logger.info('{0}--{1}--{2}'.format(obj.phoneobject.phone_number, r1.status_code, r1.content))
-                obj.attempt_count += 1
                 obj.delivered_time = timezone.now()
+                update_fields += ["delivered","delivered_time"]
+                logger.info('number: {0} comming from source: {1} is sent to destination: {2} with '
+                            'status: {3} and content: {4}'
+                            .format(obj.phoneobject.phone_number, obj.phoneobject.source, obj.destination,
+                                    r1.status_code, r1.content))
             else:
-                print("46666666464")
-                logger.info('{0}--{1}--{2}'.format(obj.phoneobject.phone_number, r1.status_code, r1.content))
-                obj.attempt_count += 1
-
-            obj.save(update_fields=['attempt_time', 'delivered', 'delivered_time', 'attempt_count'])
+                # print("46666666464")
+                logger.warning('number: {0} comming from source: {1} can not be sent to '
+                            'destination: {2} with status: {3}\n content: {4}\n'
+                            .format(obj.phoneobject.phone_number, obj.phoneobject.source,obj.destination,
+                                    r1.status_code, r1.content))
 
         except requests.exceptions.RequestException as err:
-            print("Sending Error", err)
+            logger.error("Sending Error: {0}--{1}".format(obj.destination,err))
+            # print("Sending Error", err)
+
+        finally:
+            obj.save(update_fields=update_fields)
+            logger.info("processed {0}".format(obj.id))
 
 
 if __name__ == '__main__':

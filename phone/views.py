@@ -28,6 +28,8 @@ from phone.serializers import PhoneSerializer
 # Create your views here.
 
 
+logger = logging.getLogger('receive_number')
+
 def check_admin(user):
     return user.is_superuser
 
@@ -63,8 +65,7 @@ def key_generate(request):
 @require_http_methods(["GET", "POST"])
 def validate_phone(request,sourceName, sourceId):
 
-    logger = logging.getLogger('receive_number')
-
+    logger.info("Receiving number from source: {0} and sourceId: {1}".format(sourceName,sourceId))
     if sourceName == 'xencall':
 
         if request.method == 'GET':
@@ -113,15 +114,15 @@ def validate_phone(request,sourceName, sourceId):
                 'lead_id': lead_id,
             }
 
-            print("data incomming: ",data)
+            # print("data incomming: ",data)
 
             form = XencallForm({'phone_number':phone, 'key':result, 'backup_phone':backupphone})
             if form.is_valid():
-                apiLength = len(settings.API_SENDING_LIST)
-                apiList = settings.API_SENDING_LIST
-                print(form.cleaned_data)
+                raw_source = sourceName + "-" + sourceId
+                apiLength = len(settings.API_SENDING_DICT[raw_source])
+                apiList = settings.API_SENDING_DICT[raw_source]
                 obj = form.save(commit=False)
-                obj.source = sourceName + "-" + sourceId + "-" + source
+                obj.source = raw_source + "-" + source
 
 
                 with transaction.atomic():
@@ -134,6 +135,7 @@ def validate_phone(request,sourceName, sourceId):
                 return JsonResponse({"code": "phone number sucessfully saved"}, status=200)
 
             else:
+                logger.warning("form validation failed, Errors: {0}".format(form.errors))
                 return JsonResponse(form.errors, status=400)
 
     elif sourceName == 'vicidial':
@@ -187,15 +189,16 @@ def validate_phone(request,sourceName, sourceId):
                 'talkTime': talk_time,
             }
 
-            print("data incomming: ", data)
+            # print("data incomming: ", data)
 
             form = VicidialForm({'phone_number': phone, 'key': dispo})
             if form.is_valid():
-                apiLength = len(settings.API_SENDING_LIST)
-                apiList = settings.API_SENDING_LIST
-                print(form.cleaned_data)
+                raw_source = sourceName + "-" + sourceId
+                apiLength = len(settings.API_SENDING_DICT[raw_source])
+                apiList = settings.API_SENDING_DICT[raw_source]
+                # print(form.cleaned_data)
                 obj = form.save(commit=False)
-                obj.source = sourceName + "-" + sourceId + "-" + source
+                obj.source = raw_source + "-" + source
                 obj.save()
 
                 with transaction.atomic():

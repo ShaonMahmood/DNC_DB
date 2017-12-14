@@ -260,20 +260,26 @@ TIME_SPAN_FOR_DATA_SENDING = 30
 
 MAX_TRY_COUNT = 3
 
-API_SENDING_LIST = ["xencall_1", "vicidial_1", "vicidial_2"]
+# API_SENDING_LIST = ["xencall-1", "vicidial-1", "vicidial-2"]
+
+API_SENDING_DICT = {
+    "xencall-1" : ["vicidial-1","vicidial-2"],
+    "vicidial-1" : ["vicidial-2","xencall-1"],
+    "vicidial-2" : ["vicidial-1","xencall-1"]
+}
 
 API_SENDING_AUTHENTICATION_DICT = {
-    "vicidial_1" : {
+    "vicidial-1" : {
         "user":"101",
         "pass":"451USXB32N4mD",
         "url":"http://tcm.ytel.com/x5/api/non_agent.php"
     },
-    "vicidial_2":{
+    "vicidial-2":{
         "user":"101",
         "pass":"046USXB32N4xyDK",
         "url":"http://eagent.ytel.com/x5/api/non_agent.php"
     },
-    "xencall_1":{
+    "xencall-1":{
         "user":"evan",
         "pass":"boat1234",
         "url":"https://nha-beta.xencall.com/TPI/DNC"

@@ -37,11 +37,13 @@ class PhoneData(models.Model):
     )
 
     phone_number = models.CharField(
-        max_length=15
+        max_length=15,
+        db_index=True,
     )
 
     created = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True,
     )
 
     # vicidial_tcm_delivered = models.BooleanField(
@@ -85,7 +87,7 @@ class PhoneData(models.Model):
         return self.source + " : " + self.phone_number
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('-created',)
         verbose_name = "phone_data"
 
 
@@ -101,7 +103,8 @@ class ApiSending(models.Model):
     )
 
     created = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
 
     attempt_time = models.DateTimeField(
@@ -127,5 +130,6 @@ class ApiSending(models.Model):
         return self.destination
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('-created',)
         verbose_name = "api_sending"
+
