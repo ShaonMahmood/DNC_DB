@@ -1,4 +1,5 @@
 import logging
+import random
 
 import requests
 import json
@@ -224,8 +225,57 @@ def validate_phone(request,sourceName, sourceId):
 
 # for testing purpose only
 # a random form
+@login_required
 def test_form(request):
-    return render(request,"plain_form.html")
+
+    numlist = random.sample(range(2000000000, 9999999999), 10)
+
+    api_list = [
+        # "http://dnc-db.dev.concitus.com/api/xencall/1/",
+        # "http://dnc-db.dev.concitus.com/api/vicidial/1/",
+        # "http://dnc-db.dev.concitus.com/api/vicidial/2/",
+        "http://" + request.get_host() + "/api/xencall/1/",
+        "http://" + request.get_host() + "/api/vicidial/1/",
+        "http://" + request.get_host() + "/api/vicidial/2/"
+    ]
+
+    result = []
+    for i in range(0, 3):
+        if i < 1:
+            payload = {
+                'source': 'xx',
+                'result': 'Do Not Call',
+                'leadid': '33',
+                'phone1': numlist[i],
+                'phone2': numlist[i + 5],
+            }
+
+        else:
+            payload = {
+                'phone_number': numlist[i],
+                'phone_code': '1',
+                'listID': '354',
+                'leadID': '33',
+                'dispo': 'Dnc',
+                'talk_time': '5456'
+            }
+
+        url = api_list[i]
+
+        try:
+            r1 = requests.get(url, params=payload)
+            # print("status code: ", r1.status_code)
+            # print("content: ", r1.content)
+            # print('url:', r1.url)
+            result_string = "{0}---{1}".format(r1.status_code, r1.content)
+            result.append(result_string)
+        except requests.exceptions.RequestException as e:  # This is the error catching syntax
+            print(e)
+            result.append("internal error")
+
+
+    return render(request,"plain_form.html",{"result":result})
+
 
 def test_web_form_xencall(request):
     payload = { 'source': 'xxcrr',

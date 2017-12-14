@@ -2,22 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Result of receiving: </title>
 </head>
 <body>
+<ul>
+{% for i in result %}
 
-<form action="http://dnc-db.dev.concitus.com/phone-validation/first/" method="POST" id="form1">
-    <label for="key">Your Secret Key: </label>
-    <input id="key" type="text" name="key">
+<li>{{ i }}</li>
 
-    <br>
-    <br>
+{% endfor %}
 
-    <label for="phone">Your number: </label>
-    <input id="phone" type="text" name="phone_number" placeholder="XXXX-XXX-XXX">
-    <br>
-    <input type="submit" value="Submit">
-</form>
+</ul>
+
 
 </body>
 </html>
