@@ -67,6 +67,15 @@ def key_generate(request):
 def validate_phone(request,sourceName, sourceId):
 
     logger.info("Receiving number from source: {0} and sourceId: {1}".format(sourceName,sourceId))
+    raw_source = sourceName + "-" + sourceId
+    try:
+
+        a = settings.API_SENDING_DICT[raw_source]
+
+    except KeyError:
+        logger.error("source is invalid {0}".format(raw_source))
+        return JsonResponse({'error':"unknown provider"},status=400)
+
     if sourceName == 'xencall':
 
         if request.method == 'GET':
@@ -119,7 +128,7 @@ def validate_phone(request,sourceName, sourceId):
 
             form = XencallForm({'phone_number':phone, 'key':result, 'backup_phone':backupphone})
             if form.is_valid():
-                raw_source = sourceName + "-" + sourceId
+                # raw_source = sourceName + "-" + sourceId
                 apiLength = len(settings.API_SENDING_DICT[raw_source])
                 apiList = settings.API_SENDING_DICT[raw_source]
                 obj = form.save(commit=False)
@@ -194,7 +203,7 @@ def validate_phone(request,sourceName, sourceId):
 
             form = VicidialForm({'phone_number': phone, 'key': dispo})
             if form.is_valid():
-                raw_source = sourceName + "-" + sourceId
+                # raw_source = sourceName + "-" + sourceId
                 apiLength = len(settings.API_SENDING_DICT[raw_source])
                 apiList = settings.API_SENDING_DICT[raw_source]
                 # print(form.cleaned_data)
@@ -236,12 +245,14 @@ def test_form(request):
         # "http://dnc-db.dev.concitus.com/api/vicidial/2/",
         "http://" + request.get_host() + "/api/xencall/1/",
         "http://" + request.get_host() + "/api/vicidial/1/",
-        "http://" + request.get_host() + "/api/vicidial/2/"
+        "http://" + request.get_host() + "/api/vicidial/2/",
+        # "http://" + request.get_host() + "/api/xencall/2/",
+        # "http://" + request.get_host() + "/api/xencall/3/",
     ]
 
     result = []
-    for i in range(0, 3):
-        if i < 1:
+    for i in range(0, len(api_list)):
+        if i < len(api_list)-2:
             payload = {
                 'source': 'xx',
                 'result': 'Do Not Call',
