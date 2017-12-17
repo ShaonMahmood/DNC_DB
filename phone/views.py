@@ -294,7 +294,7 @@ def test_form(request):
             result.append("internal error")
     final_end = time.time()
     logger.info("program ending time before render : {0}".format(final_end))
-    logger.info("total time conceeded {0}".format(int((end - start) * 1000)))
+    logger.info("total time conceeded {0}".format(int((final_end - start) * 1000)))
     return render(request, "plain_form.html", {"result": result})
 
 
