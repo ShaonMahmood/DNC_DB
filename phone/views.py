@@ -151,6 +151,9 @@ def validate_phone(request,sourceName, sourceId):
                     for i in range(0,apiLength):
                         logger.info("transaction for {} and time : {1}".format(i,time.time()))
                         ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
+                        logger.info("each transaction: {0}".format(time.time()))
+
+                    logger.info("within transaction: {0}".format(time.time()))
 
                 logger.info('the number {0} with source name {1} is saved'.format(obj.phone_number, obj.source))
                 logger.info("after form data saving : {0}".format(time.time()))
