@@ -144,10 +144,12 @@ def validate_phone(request,sourceName, sourceId):
                 obj = form.save(commit=False)
                 obj.source = raw_source + "-" + source
 
-
+                logger.info("before transaction : {0}".format(time.time()))
                 with transaction.atomic():
                     obj.save()
+                    logger.info("transaction first save : {0}".format(time.time()))
                     for i in range(0,apiLength):
+                        logger.info("transaction for {} and time : {1}".format(i,time.time()))
                         ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
 
                 logger.info('the number {0} with source name {1} is saved'.format(obj.phone_number, obj.source))
