@@ -62,8 +62,6 @@ def api_sending_generator(obj):
 
 def main():
 
-    logger = logging.getLogger('send_number')
-
     for obj in ApiSending.objects.filter(Q(delivered=False),Q(attempt_count__lte=trycount),
                                          Q(attempt_time__isnull=True) |
                                          Q(attempt_time__lte=timezone.now()-datetime.timedelta(minutes=timespan)))[:50]:
@@ -75,9 +73,9 @@ def main():
         try:
             lis = api_sending_generator(obj)
             if len(lis) == 1:
-                r1 = requests.post(lis[0])
+                r1 = requests.post(lis[0], timeout=(10, 10))
             else:
-                r1 = requests.get(lis[1], params=lis[0])
+                r1 = requests.get(lis[1], params=lis[0], timeout=(10, 10))
 
             if str(r1.status_code) == '200':
 
@@ -114,6 +112,8 @@ if __name__ == '__main__':
     from django.utils import timezone
     from dnc_db.settings import TIME_SPAN_FOR_DATA_SENDING as timespan, MAX_TRY_COUNT as trycount, \
         API_SENDING_AUTHENTICATION_DICT
+
+    logger = logging.getLogger('send_number')
     while True:
         main()
         time.sleep(3)

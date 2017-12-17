@@ -221,15 +221,12 @@ def validate_phone(request,sourceName, sourceId):
                 return JsonResponse({"code": "phone number successfully saved"}, status=200)
 
             else:
+                logger.warning("form validation failed, Errors: {0}".format(form.errors))
                 return JsonResponse(form.errors, status=400)
 
     else:
+        logger.error("the provider is unknown")
         return JsonResponse({'error':"unknown provider"},status=400)
-
-
-
-
-
 
 
 # for testing purpose only
@@ -237,7 +234,17 @@ def validate_phone(request,sourceName, sourceId):
 @login_required
 def test_form(request):
 
+    start =time.time()
+
+    logger.info("start sampling : {0}".format(start))
+
     numlist = random.sample(range(2000000000, 9999999999), 10)
+
+    end = time.time()
+
+    logger.info("start sampling : {0}".format(start))
+
+    logger.info("random sampling time {0}".format(int((end - start) * 1000)))
 
     api_list = [
         # "http://dnc-db.dev.concitus.com/api/xencall/1/",
@@ -252,6 +259,8 @@ def test_form(request):
 
     result = []
     for i in range(0, len(api_list)):
+
+        logger.info("inside {0} loop in time {1}".format(i,time.time()))
         if i < len(api_list)-2:
             payload = {
                 'source': 'xx',
@@ -274,18 +283,19 @@ def test_form(request):
         url = api_list[i]
 
         try:
-            r1 = requests.get(url, params=payload)
+            r1 = requests.get(url, params=payload, timeout=(2, 2))
             # print("status code: ", r1.status_code)
             # print("content: ", r1.content)
             # print('url:', r1.url)
             result_string = "{0}---{1}".format(r1.status_code, r1.content)
             result.append(result_string)
         except requests.exceptions.RequestException as e:  # This is the error catching syntax
-            print(e)
+            logger.error("test_form: {0}".format(e))
             result.append("internal error")
-
-
-    return render(request,"plain_form.html",{"result":result})
+    final_end = time.time()
+    logger.info("program ending time before render : {0}".format(final_end))
+    logger.info("total time conceeded {0}".format(int((end - start) * 1000)))
+    return render(request, "plain_form.html", {"result": result})
 
 
 def test_web_form_xencall(request):
