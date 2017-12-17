@@ -67,6 +67,8 @@ def key_generate(request):
 def validate_phone(request,sourceName, sourceId):
 
     logger.info("Receiving number from source: {0} and sourceId: {1}".format(sourceName,sourceId))
+
+    logger.info("start validating : {0}".format(time.time()))
     raw_source = sourceName + "-" + sourceId
     try:
 
@@ -76,7 +78,12 @@ def validate_phone(request,sourceName, sourceId):
         logger.error("source is invalid {0}".format(raw_source))
         return JsonResponse({'error':"unknown provider"},status=400)
 
+    logger.info("start validating : {0}".format(time.time()))
+
+
     if sourceName == 'xencall':
+
+        logger.info("start time for xencall : {0}".format(time.time()))
 
         if request.method == 'GET':
             vals = request.GET
@@ -93,6 +100,8 @@ def validate_phone(request,sourceName, sourceId):
             return JsonResponse({"code": "Thank u for your submission"}, status=200)
 
         else:
+
+            logger.info("start time for real : {0}".format(time.time()))
             errors = {}
 
             phone = ''
@@ -128,6 +137,7 @@ def validate_phone(request,sourceName, sourceId):
 
             form = XencallForm({'phone_number':phone, 'key':result, 'backup_phone':backupphone})
             if form.is_valid():
+                logger.info("before form data saving : {0}".format(time.time()))
                 # raw_source = sourceName + "-" + sourceId
                 apiLength = len(settings.API_SENDING_DICT[raw_source])
                 apiList = settings.API_SENDING_DICT[raw_source]
@@ -141,6 +151,7 @@ def validate_phone(request,sourceName, sourceId):
                         ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
 
                 logger.info('the number {0} with source name {1} is saved'.format(obj.phone_number, obj.source))
+                logger.info("after form data saving : {0}".format(time.time()))
 
                 return JsonResponse({"code": "phone number sucessfully saved"}, status=200)
 
@@ -229,6 +240,8 @@ def validate_phone(request,sourceName, sourceId):
         return JsonResponse({'error':"unknown provider"},status=400)
 
 
+
+
 # for testing purpose only
 # a random form
 @login_required
@@ -283,7 +296,7 @@ def test_form(request):
         url = api_list[i]
 
         try:
-            r1 = requests.get(url, params=payload, timeout=(2, 2))
+            r1 = requests.get(url, params=payload, timeout=(2, 6))
             # print("status code: ", r1.status_code)
             # print("content: ", r1.content)
             # print('url:', r1.url)
