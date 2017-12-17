@@ -149,7 +149,7 @@ def validate_phone(request,sourceName, sourceId):
                     obj.save()
                     logger.info("transaction first save : {0}".format(time.time()))
                     for i in range(0,apiLength):
-                        logger.info("transaction for {} and time : {1}".format(i,time.time()))
+                        logger.info("transaction for {0} and time : {1}".format(i,time.time()))
                         ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
                         logger.info("each transaction: {0}".format(time.time()))
 
@@ -265,12 +265,12 @@ def test_form(request):
     logger.info("random sampling time {0}".format(int((end - start) * 1000)))
 
     api_list = [
-        # "http://dnc-db.dev.concitus.com/api/xencall/1/",
-        # "http://dnc-db.dev.concitus.com/api/vicidial/1/",
-        # "http://dnc-db.dev.concitus.com/api/vicidial/2/",
-        "http://" + request.get_host() + "/api/xencall/1/",
-        "http://" + request.get_host() + "/api/vicidial/1/",
-        "http://" + request.get_host() + "/api/vicidial/2/",
+        "http://dnc-db.dev.concitus.com/api/xencall/1/",
+        "http://dnc-db.dev.concitus.com/api/vicidial/1/",
+        "http://dnc-db.dev.concitus.com/api/vicidial/2/",
+        # "http://" + request.get_host() + "/api/xencall/1/",
+        # "http://" + request.get_host() + "/api/vicidial/1/",
+        # "http://" + request.get_host() + "/api/vicidial/2/",
         # "http://" + request.get_host() + "/api/xencall/2/",
         # "http://" + request.get_host() + "/api/xencall/3/",
     ]
