@@ -78,7 +78,7 @@ def validate_phone(request,sourceName, sourceId):
         logger.error("source is invalid {0}".format(raw_source))
         return JsonResponse({'error':"unknown provider"},status=400)
 
-    logger.info("start validating : {0}".format(time.time()))
+    # logger.info("start validating : {0}".format(time.time()))
 
 
     if sourceName == 'xencall':
@@ -101,7 +101,7 @@ def validate_phone(request,sourceName, sourceId):
 
         else:
 
-            logger.info("start time for real : {0}".format(time.time()))
+            # logger.info("start time for real : {0}".format(time.time()))
             errors = {}
 
             phone = ''
@@ -149,9 +149,9 @@ def validate_phone(request,sourceName, sourceId):
                     obj.save()
                     logger.info("transaction first save : {0}".format(time.time()))
                     for i in range(0,apiLength):
-                        logger.info("transaction for {0} and time : {1}".format(i,time.time()))
+                        # logger.info("transaction for {0} and time : {1}".format(i,time.time()))
                         ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
-                        logger.info("each transaction: {0}".format(time.time()))
+                        # logger.info("each transaction: {0}".format(time.time()))
 
                     logger.info("within transaction: {0}".format(time.time()))
 
@@ -265,12 +265,13 @@ def test_form(request):
     logger.info("random sampling time {0}".format(int((end - start) * 1000)))
 
     api_list = [
-        "http://dnc-db.dev.concitus.com/api/xencall/1/",
-        "http://dnc-db.dev.concitus.com/api/vicidial/1/",
-        "http://dnc-db.dev.concitus.com/api/vicidial/2/",
-        # "http://" + request.get_host() + "/api/xencall/1/",
-        # "http://" + request.get_host() + "/api/vicidial/1/",
-        # "http://" + request.get_host() + "/api/vicidial/2/",
+        # "http://dnc-db.dev.concitus.com/api/xencall/1/",
+        # "http://dnc-db.dev.concitus.com/api/vicidial/1/",
+        # "http://dnc-db.dev.concitus.com/api/vicidial/2/",
+        "http://" + request.get_host() + "/api/xencall/1/",
+        "http://" + request.get_host() + "/api/vicidial/1/",
+        "http://" + request.get_host() + "/api/vicidial/2/",
+        "http://" + request.get_host() + "/api/vicidial/3/",
         # "http://" + request.get_host() + "/api/xencall/2/",
         # "http://" + request.get_host() + "/api/xencall/3/",
     ]
@@ -279,7 +280,7 @@ def test_form(request):
     for i in range(0, len(api_list)):
 
         logger.info("inside {0} loop in time {1}".format(i,time.time()))
-        if i < len(api_list)-2:
+        if i < len(api_list)-3:
             payload = {
                 'source': 'xx',
                 'result': 'Do Not Call',
