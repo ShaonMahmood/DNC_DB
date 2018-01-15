@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import URLValidator
 # Create your models here.
 
 
@@ -133,3 +133,25 @@ class ApiSending(models.Model):
         ordering = ('-created',)
         verbose_name = "api_sending"
 
+
+
+class API_CONFIG(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    user = models.CharField(
+        max_length=100
+    )
+
+    password = models.CharField(
+        max_length=50
+    )
+
+    url = models.TextField(
+        validators=[URLValidator()]
+    )
+
+    def __str__(self):
+        return self.name

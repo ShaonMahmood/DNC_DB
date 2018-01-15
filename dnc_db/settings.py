@@ -262,35 +262,35 @@ MAX_TRY_COUNT = 3
 
 # API_SENDING_LIST = ["xencall-1", "vicidial-1", "vicidial-2"]
 
-API_SENDING_DICT = {
-    "xencall-1" : ["vicidial-1","vicidial-2","vicidial-3"],
-    "vicidial-1" : ["vicidial-2","xencall-1","vicidial-3"],
-    "vicidial-2" : ["vicidial-1","xencall-1","vicidial-3"],
-    "vicidial-3" : ["vicidial-1","xencall-1","vicidial-2"]
-}
-
-API_SENDING_AUTHENTICATION_DICT = {
-    "vicidial-1" : {
-        "user":"101",
-        "pass":"451USXB32N4mD",
-        "url":"http://tcm.ytel.com/x5/api/non_agent.php"
-    },
-    "vicidial-2":{
-        "user":"101",
-        "pass":"046USXB32N4xyDK",
-        "url":"http://eagent.ytel.com/x5/api/non_agent.php"
-    },
-    "vicidial-3":{
-        "user":"101",
-        "pass":"APIcbPOST2938",
-        "url":"http://callblade.ytel.com/x5/api/non_agent.php"
-    },
-    "xencall-1":{
-        "user":"evan",
-        "pass":"boat1234",
-        "url":"https://nha-beta.xencall.com/TPI/DNC"
-    }
-}
+# API_SENDING_DICT = {
+#     "xencall-1" : ["vicidial-1","vicidial-2","vicidial-3"],
+#     "vicidial-1" : ["vicidial-2","xencall-1","vicidial-3"],
+#     "vicidial-2" : ["vicidial-1","xencall-1","vicidial-3"],
+#     "vicidial-3" : ["vicidial-1","xencall-1","vicidial-2"]
+# }
+#
+# API_SENDING_AUTHENTICATION_DICT = {
+#     "vicidial-1" : {
+#         "user":"101",
+#         "pass":"451USXB32N4mD",
+#         "url":"http://tcm.ytel.com/x5/api/non_agent.php"
+#     },
+#     "vicidial-2":{
+#         "user":"101",
+#         "pass":"046USXB32N4xyDK",
+#         "url":"http://eagent.ytel.com/x5/api/non_agent.php"
+#     },
+#     "vicidial-3":{
+#         "user":"101",
+#         "pass":"APIcbPOST2938",
+#         "url":"http://callblade.ytel.com/x5/api/non_agent.php"
+#     },
+#     "xencall-1":{
+#         "user":"evan",
+#         "pass":"boat1234",
+#         "url":"https://nha-beta.xencall.com/TPI/DNC"
+#     }
+# }
 
 db_from_env = dj_database_url.config(conn_max_age=None)
 DATABASES['default'].update(db_from_env)

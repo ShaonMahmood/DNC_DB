@@ -24,37 +24,38 @@ def api_sending_generator(obj):
     """
 
     source = obj.destination[:3]
+    api = API_CONFIG.objects.get(name=obj.destination)
     list_of_payload_and_url = []
     if source == "vic":
         payload = {
             'source': obj.phoneobject.source,
-            'user': API_SENDING_AUTHENTICATION_DICT[obj.destination]["user"],
-            'pass': API_SENDING_AUTHENTICATION_DICT[obj.destination]["pass"],
+            'user': api.user,
+            'pass': api.password,
             'function': 'update_lead',
             'phone_number': obj.phoneobject.phone_number,
             'status': 'DNC','addDncOption':'BOTH',
             "alt_phone":obj.phoneobject.backup_phone
                    }
 
-        url = API_SENDING_AUTHENTICATION_DICT[obj.destination]["url"]
+        url = api.url
         list_of_payload_and_url.extend([payload,url])
 
     else:
         if obj.phoneobject.backup_phone:
             payload = {
-                "API_user": API_SENDING_AUTHENTICATION_DICT[obj.destination]["user"],
-                "API_pass": API_SENDING_AUTHENTICATION_DICT[obj.destination]["pass"],
+                "API_user": api.user,
+                "API_pass": api.password,
                 "entry[0][phone]": obj.phoneobject.phone_number,
                 "entry[1][phone]": obj.phoneobject.backup_phone,
             }
         else:
             payload = {
-                "API_user": API_SENDING_AUTHENTICATION_DICT[obj.destination]["user"],
-                "API_pass": API_SENDING_AUTHENTICATION_DICT[obj.destination]["pass"],
+                "API_user": api.user,
+                "API_pass": api.password,
                 "entry[0][phone]": obj.phoneobject.phone_number,
             }
 
-        url = API_SENDING_AUTHENTICATION_DICT[obj.destination]["url"] + "?" + urllib.parse.urlencode(payload)
+        url = api.url + "?" + urllib.parse.urlencode(payload)
         list_of_payload_and_url.extend([url])
 
     return list_of_payload_and_url
@@ -106,12 +107,11 @@ if __name__ == '__main__':
 
     set_env.activate_venv()
     import requests
-    from phone.models import PhoneData,ApiSending
+    from phone.models import ApiSending,API_CONFIG
     from django.db.models import Q
     import datetime
     from django.utils import timezone
-    from dnc_db.settings import TIME_SPAN_FOR_DATA_SENDING as timespan, MAX_TRY_COUNT as trycount, \
-        API_SENDING_AUTHENTICATION_DICT
+    from dnc_db.settings import TIME_SPAN_FOR_DATA_SENDING as timespan, MAX_TRY_COUNT as trycount
 
     logger = logging.getLogger('send_number')
     while True:

@@ -16,7 +16,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 
 from dnc_db import settings
-from phone.models import ResourceIdGenerator
+from phone.models import ResourceIdGenerator, API_CONFIG
 from .forms import PhoneForm, KeyGeneratorForm, XencallForm, VicidialForm
 
 from rest_framework.renderers import JSONRenderer
@@ -70,11 +70,7 @@ def validate_phone(request,sourceName, sourceId):
 
     logger.info("start validating : {0}".format(time.time()))
     raw_source = sourceName + "-" + sourceId
-    try:
-
-        a = settings.API_SENDING_DICT[raw_source]
-
-    except KeyError:
+    if not API_CONFIG.objects.filter(name=raw_source).exists():
         logger.error("source is invalid {0}".format(raw_source))
         return JsonResponse({'error':"unknown provider"},status=400)
 
@@ -139,8 +135,10 @@ def validate_phone(request,sourceName, sourceId):
             if form.is_valid():
                 logger.info("before form data saving : {0}".format(time.time()))
                 # raw_source = sourceName + "-" + sourceId
-                apiLength = len(settings.API_SENDING_DICT[raw_source])
-                apiList = settings.API_SENDING_DICT[raw_source]
+                # apiLength = len(settings.API_SENDING_DICT[raw_source])
+                # apiList = settings.API_SENDING_DICT[raw_source]
+                apiList = API_CONFIG.objects.values_list('name').exclude(name=raw_source)
+
                 obj = form.save(commit=False)
                 obj.source = raw_source + "-" + source
 
@@ -148,9 +146,9 @@ def validate_phone(request,sourceName, sourceId):
                 with transaction.atomic():
                     obj.save()
                     logger.info("transaction first save : {0}".format(time.time()))
-                    for i in range(0,apiLength):
+                    for apiname in apiList:
                         # logger.info("transaction for {0} and time : {1}".format(i,time.time()))
-                        ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
+                        ApiSending.objects.create(destination=apiname[0], phoneobject=obj)
                         # logger.info("each transaction: {0}".format(time.time()))
 
                     logger.info("within transaction: {0}".format(time.time()))
@@ -220,8 +218,10 @@ def validate_phone(request,sourceName, sourceId):
             form = VicidialForm({'phone_number': phone, 'key': dispo})
             if form.is_valid():
                 # raw_source = sourceName + "-" + sourceId
-                apiLength = len(settings.API_SENDING_DICT[raw_source])
-                apiList = settings.API_SENDING_DICT[raw_source]
+                # apiLength = len(settings.API_SENDING_DICT[raw_source])
+                # apiList = settings.API_SENDING_DICT[raw_source]
+
+                apiList = API_CONFIG.objects.values_list('name').exclude(name=raw_source)
                 # print(form.cleaned_data)
                 obj = form.save(commit=False)
                 obj.source = raw_source + "-" + source
@@ -229,8 +229,8 @@ def validate_phone(request,sourceName, sourceId):
 
                 with transaction.atomic():
                     obj.save()
-                    for i in range(0,apiLength):
-                        ApiSending.objects.create(destination=apiList[i], phoneobject=obj)
+                    for apiname in apiList:
+                        ApiSending.objects.create(destination=apiname[0], phoneobject=obj)
 
                 logger.info('the number {0} with source name {1} is saved'.format(obj.phone_number, obj.source))
 
