@@ -86,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'dnc_db',
         'USER': 'dnc_db_user',
-        'PASSWORD': 'dnc_db_project',
+        'PASSWORD': 'dncdbpass',
         'HOST': 'localhost',
         'PORT': '5432',
     }
