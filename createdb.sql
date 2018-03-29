@@ -1,9 +1,0 @@
-DROP DATABASE IF EXISTS dnc_db;
-
-DROP ROLE IF EXISTS dnc_db_user;
-
-CREATE DATABASE dnc_db;
-
-CREATE USER dnc_db_user WITH PASSWORD 'dncdbpass';
-
-GRANT ALL PRIVILEGES ON DATABASE dnc_db TO dnc_db_user;

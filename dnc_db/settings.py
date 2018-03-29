@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import raven
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import dj_database_url
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'raven.contrib.django.raven_compat',
 ]
 
 MIDDLEWARE = [
@@ -291,6 +293,14 @@ MAX_TRY_COUNT = 3
 #         "url":"https://nha-beta.xencall.com/TPI/DNC"
 #     }
 # }
+
+RAVEN_CONFIG = {
+    'dsn': 'https://e7f18df84e3d431ab5d2c7d7dfddaff8:8484c27a599d422a91e473babbe38551@sentry.io/717191',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+}
+
 
 db_from_env = dj_database_url.config(conn_max_age=None)
 DATABASES['default'].update(db_from_env)

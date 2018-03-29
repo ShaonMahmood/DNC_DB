@@ -1,6 +1,0 @@
-1. Creating The model
-
-2. Generating The Security key
-
-3. Handling form data
-
