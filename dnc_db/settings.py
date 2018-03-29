@@ -26,7 +26,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '-(%jpo&vbk2+vjz_$^#o^moxuuotazo1t349x$i)ip_@ic76g_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+DEBUG = os.environ.get('DOKKU_DEBUG',True)
+
 
 ALLOWED_HOSTS = ['*']
 
