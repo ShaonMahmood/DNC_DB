@@ -14,3 +14,5 @@ mock_send_number.py
 .hgignore
 db.sqlite3
 Dockerfile
+celerybeat.pid
+celerybeat-schedule

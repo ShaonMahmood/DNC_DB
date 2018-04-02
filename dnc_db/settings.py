@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import raven
+from celery.schedules import crontab
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import dj_database_url
@@ -301,6 +302,24 @@ RAVEN_CONFIG = {
     # If you are using git, you can also automatically configure the
     # release based on the git info.
     # 'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+}
+
+
+DATA_SENDING_LIMIT = 50
+
+
+#### CELERY SETTINGS
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 12  # 12 hours
+CELERY_TASK_LOCK_EXPIRE = 60 * 10 * 6
+
+CELERY_TASK_ROUTES = {
+    'phone.tasks.DataSendingTask': {'queue': 'data_sending'},
 }
 
 
