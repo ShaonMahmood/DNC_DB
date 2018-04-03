@@ -2,7 +2,7 @@ import urllib
 import requests
 import datetime
 
-from celery.task import PeriodicTask
+from celery.task import PeriodicTask, Task
 from datetime import datetime, timedelta
 
 from phone.models import ApiSending,API_CONFIG
@@ -69,9 +69,8 @@ class DataSendingTask(PeriodicTask):
 
     # The campaign have to run every minutes in order to control the number
     # of calls per minute. Cons : new calls might delay 60seconds
-    run_every = timedelta(seconds=5)
+    run_every = timedelta(seconds=3)
 
-    @only_one(ikey="start_sending_data", timeout=settings.CELERY_TASK_LOCK_EXPIRE)
     def run(self, **kwargs):
 
         logger.info('Sending Dnc Data')
@@ -81,41 +80,63 @@ class DataSendingTask(PeriodicTask):
                                              Q(attempt_time__isnull=True) |
                                                      Q(attempt_time__lte=timezone.now() - timedelta(
                                                          minutes=timespan)))[:settings.DATA_SENDING_LIMIT]:
-            logger.info(
-                "Sending number {0} to {1} comming from {2}..".format(obj.phoneobject.phone_number, obj.destination,
-                                                                      obj.phoneobject.source))
-            obj.attempt_time = timezone.now()
-            obj.attempt_count += 1
-            update_fields = ["attempt_time", "attempt_count"]
-            try:
-                lis = api_sending_generator(obj)
-                if len(lis) == 1:
-                    r1 = requests.post(lis[0], timeout=(10, 10))
-                else:
-                    r1 = requests.get(lis[1], params=lis[0], timeout=(10, 10))
+            keytask = 'start_sending_data-{0}----'.format(obj.id)
+            logger.info("Keytask: {0}".format(keytask))
+            LeadSend().delay(obj.id, keytask=keytask)
 
-                if str(r1.status_code) == '200':
 
-                    obj.delivered = True
-                    obj.delivered_time = timezone.now()
-                    update_fields += ["delivered", "delivered_time"]
-                    logger.info('number: {0} comming from source: {1} is sent to destination: {2} with '
-                                'status: {3} and content: {4}'
-                                .format(obj.phoneobject.phone_number, obj.phoneobject.source, obj.destination,
-                                        r1.status_code, r1.content))
-                else:
-                    # print("46666666464")
-                    logger.warning('number: {0} comming from source: {1} can not be sent to '
-                                   'destination: {2} with status: {3}\n content: {4}\n'
-                                   .format(obj.phoneobject.phone_number, obj.phoneobject.source, obj.destination,
-                                           r1.status_code, r1.content))
 
-            except requests.exceptions.RequestException as err:
-                logger.error("Sending Error: {0}--{1}".format(obj.destination, err))
-                return False
-                # print("Sending Error", err)
+class LeadSend(Task):
 
-            finally:
-                obj.save(update_fields=update_fields)
-                logger.info("processed {0}".format(obj.id))
-                return True
+    @only_one(ikey="start_sending_data", timeout=settings.CELERY_TASK_LOCK_EXPIRE)
+    def run(self, obj_id, keytask='start_sending_data'):
+
+        logger.info("In Task function")
+
+        try:
+            obj = ApiSending.objects.get(Q(id=obj_id),Q(delivered=False), Q(attempt_count__lte=trycount),
+                                             Q(attempt_time__isnull=True) |
+                                                     Q(attempt_time__lte=timezone.now() - timedelta(
+                                                         minutes=timespan)))
+        except ApiSending.DoesNotExist as e:
+            logger.error("Object not found error: {0}".format(e))
+            return False
+
+        logger.info(
+            "Sending number {0} to {1} comming from {2}..".format(obj.phoneobject.phone_number, obj.destination,
+                                                                  obj.phoneobject.source))
+        obj.attempt_time = timezone.now()
+        obj.attempt_count += 1
+        update_fields = ["attempt_time", "attempt_count"]
+        try:
+            lis = api_sending_generator(obj)
+            if len(lis) == 1:
+                r1 = requests.post(lis[0], timeout=(10, 10))
+            else:
+                r1 = requests.get(lis[1], params=lis[0], timeout=(10, 10))
+
+            if str(r1.status_code) == '200':
+
+                obj.delivered = True
+                obj.delivered_time = timezone.now()
+                update_fields += ["delivered", "delivered_time"]
+                logger.info('number: {0} comming from source: {1} is sent to destination: {2} with '
+                            'status: {3} and content: {4}'
+                            .format(obj.phoneobject.phone_number, obj.phoneobject.source, obj.destination,
+                                    r1.status_code, r1.content))
+            else:
+                # print("46666666464")
+                logger.warning('number: {0} comming from source: {1} can not be sent to '
+                               'destination: {2} with status: {3}\n content: {4}\n'
+                               .format(obj.phoneobject.phone_number, obj.phoneobject.source, obj.destination,
+                                       r1.status_code, r1.content))
+
+        except requests.exceptions.RequestException as err:
+            logger.error("Sending Error: {0}--{1}".format(obj.destination, err))
+            return False
+            # print("Sending Error", err)
+
+        finally:
+            obj.save(update_fields=update_fields)
+            logger.info("processed {0}".format(obj.id))
+            return True

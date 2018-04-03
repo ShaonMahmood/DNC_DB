@@ -305,7 +305,7 @@ RAVEN_CONFIG = {
 }
 
 
-DATA_SENDING_LIMIT = 50
+DATA_SENDING_LIMIT = 4
 
 
 #### CELERY SETTINGS
@@ -320,6 +320,7 @@ CELERY_TASK_LOCK_EXPIRE = 60 * 10 * 6
 
 CELERY_TASK_ROUTES = {
     'phone.tasks.DataSendingTask': {'queue': 'data_sending'},
+    'phone.tasks.LeadSend': {'queue': 'data_sending'},
 }
 
 
