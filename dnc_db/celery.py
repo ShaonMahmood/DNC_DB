@@ -9,16 +9,16 @@ from raven.contrib.celery import register_signal, register_logger_signal
 
 
 class Celery(celery.Celery):
-    pass
 
-    # def on_configure(self):
-    #     client = raven.Client('https://d7af2998ad074c9388afe72abd98f955:7b9779f805f54961b259c7ae8e00ca74@sentry.io/649561')
-    #
-    #     # register a custom filter to filter out duplicate logs
-    #     register_logger_signal(client)
-    #
-    #     # hook into the Celery error handler
-    #     register_signal(client)
+
+    def on_configure(self):
+        client = raven.Client('https://e7f18df84e3d431ab5d2c7d7dfddaff8:8484c27a599d422a91e473babbe38551@sentry.io/717191')
+
+        # register a custom filter to filter out duplicate logs
+        register_logger_signal(client)
+
+        # hook into the Celery error handler
+        register_signal(client)
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dnc_db.settings')
