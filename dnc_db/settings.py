@@ -325,5 +325,6 @@ CELERY_TASK_ROUTES = {
 }
 
 
+
 db_from_env = dj_database_url.config(conn_max_age=None)
 DATABASES['default'].update(db_from_env)
