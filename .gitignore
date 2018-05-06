@@ -13,6 +13,5 @@ mock_send_number.py
 .hg
 .hgignore
 db.sqlite3
-Dockerfile
 celerybeat.pid
 celerybeat-schedule

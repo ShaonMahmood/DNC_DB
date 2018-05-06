@@ -1,0 +1,72 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nz01
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/src
+      - ./config/nginx:/etc/nginx/conf.d
+    depends_on:
+      - web
+  web:
+    build: .
+    container_name: wb01
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    depends_on:
+      - db
+    command: bash -c "python manage.py collectstatic --no-input && python manage.py makemigrations && python manage.py migrate && gunicorn dnc_db.wsgi -b 0.0.0.0:8000"
+    volumes:
+      - .:/src
+    expose:
+      - "8000"
+    links:
+      - redis
+  db:
+    image: postgres:latest
+    container_name: db01
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    restart: always
+    image: redis:latest
+    container_name: rd01
+    volumes:
+    - redisdata:/data
+
+  celery_worker:
+    build: .
+    container_name: wrkr01
+    depends_on:
+      - db
+    volumes_from:
+      - web
+    links:
+      - redis
+    command: bash -c "celery -A dnc_db worker -c 4 -Q data_sending -l info"
+
+  celery_beat:
+    build: .
+    container_name: beat01
+    depends_on:
+      - db
+    volumes_from:
+      - web
+    links:
+      - redis
+
+    command: bash -c "celery -A dnc_db beat -l info"
+
+volumes:
+  pgdata:
+  redisdata:

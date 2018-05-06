@@ -82,20 +82,35 @@ WSGI_APPLICATION = 'dnc_db.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # },
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dnc_db',
-        'USER': 'dnc_db_user',
-        'PASSWORD': 'dncdbpass',
-        'HOST': 'localhost',
-        'PORT': '5432',
+
+if 'POSTGRES_DB' in os.environ:
+    print("In postgres.........")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ.get('POSTGRES_DB', 'postgres'),
+            'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+            'HOST': os.environ.get('DB_PORT_5432_TCP_ADDR', 'db'),
+            'PORT': os.environ.get('DB_PORT_5432_TCP_PORT', '5432'),
+        },
     }
-}
+
+else:
+    DATABASES = {
+        # 'default': {
+        #     'ENGINE': 'django.db.backends.sqlite3',
+        #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # },
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'dnc_db',
+            'USER': 'dnc_db_user',
+            'PASSWORD': 'dncdbpass',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
 
 
 # Password validation
